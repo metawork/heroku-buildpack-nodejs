@@ -64,9 +64,19 @@ build_start_time=$(nowms)
 
 ### Handle errors
 
+function output_npm_logs() {
+  for file in $(find "$NPM_CONFIG_CACHE/_logs" -type f -iname "*.log"); do
+    if [ -f "$file" ]; then
+        echo "Found npm log $file:" | output "$LOG_FILE"
+	cat "$file" | output "$LOG_FILE"
+    fi
+  done
+}
+
 handle_failure() {
   meta_set "node-build-success" "false"
   header "Build failed"
+  output_npm_logs
   fail_yarn_outdated "$LOG_FILE"
   fail_yarn_lockfile_outdated "$LOG_FILE"
   fail_node_install "$LOG_FILE" "$BUILD_DIR"
